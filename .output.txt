@@ -1,0 +1,255 @@
+Calculating task graph as no cached configuration is available for tasks: tasks
+Type-safe project accessors is an incubating feature.
+> Configure project :composeApp
+w: ⚠️ The 'org.jetbrains.kotlin.multiplatform' plugin deprecated compatibility with Android Gradle plugin: 'com.android.application'
+The 'org.jetbrains.kotlin.multiplatform' plugin will not be compatible with 'com.android.application' starting with Android Gradle Plugin 9.0.0.
+Please change the structure of the your project and move the usage of 'com.android.application' into a separate subproject. The new subproject should add a dependency on this KMP subproject.
+Read more: https://kotl.in/kmp-project-structure-migration
+Solution:
+Please change the structure of your project and move the usage of 'com.android.application' into a separate subproject.
+See https://kotl.in/gradle/agp-new-kmp for more details.
+> Task :tasks
+------------------------------------------------------------
+Tasks runnable from root project 'web_previews'
+------------------------------------------------------------
+Android tasks
+-------------
+androidDependencies - Displays the Android dependencies of the project.
+signingReport - Displays the signing info for the base and test modules
+sourceSets - Prints out all the source sets defined in this project.
+Binaryen tasks
+--------------
+kotlinWasmBinaryenSetup - Download and install a binaryen
+wasmBinaryenKotlinClean - Clean unused local binaryen version
+Build tasks
+-----------
+allMetadataJar - Assembles a jar archive containing the metadata for all Kotlin source sets.
+assemble - Assembles the outputs of this project.
+assembleAndroidTest - Assembles all the Test applications.
+assembleUnitTest - Assembles all the unit test applications.
+build - Assembles and tests this project.
+buildDependents - Assembles and tests this project and all projects that depend on it.
+buildKotlinToolingMetadata - Build metadata json file containing information about the used Kotlin tooling
+buildNeeded - Assembles and tests this project and all projects it depends on.
+bundle - Assemble bundles for all the variants.
+clean - Deletes the build directory.
+cleanAllTests - Deletes all the test results.
+compileAppleMainKotlinMetadata - Compiles a klibrary from the 'appleMain' compilation in target 'metadata'.
+compileDebugAndroidTestSources
+compileDebugSources
+compileDebugUnitTestSources
+compileIosMainKotlinMetadata - Compiles a klibrary from the 'iosMain' compilation in target 'metadata'.
+compileKotlinIosArm64 - Compiles a klibrary from the 'main' compilation in target 'iosArm64'.
+compileKotlinIosSimulatorArm64 - Compiles a klibrary from the 'main' compilation in target 'iosSimulatorArm64'.
+compileNativeMainKotlinMetadata - Compiles a klibrary from the 'nativeMain' compilation in target 'metadata'.
+compileReleaseSources
+compileReleaseUnitTestSources
+compileTestKotlinIosArm64 - Compiles a klibrary from the 'test' compilation in target 'iosArm64'.
+compileTestKotlinIosSimulatorArm64 - Compiles a klibrary from the 'test' compilation in target 'iosSimulatorArm64'.
+embedAndSignAppleFrameworkForXcode - Embed and sign  framework as requested by Xcode's environment variables
+embedSwiftExportForXcode - Embed swift export library as requested by Xcode's environment variables
+iosArm64Binaries - Assembles outputs for target 'iosArm64'.
+iosArm64MainBinaries - Links all binaries for compilation 'main' of target 'iosArm64'.
+iosArm64MainKlibrary - Assembles outputs for compilation 'main' of target 'iosArm64'
+iosArm64MetadataElements - Assembles Kotlin metadata of target 'iosArm64'.
+iosArm64SourcesJar - Assembles a jar archive containing the sources of target 'iosArm64'.
+iosArm64TestBinaries - Links all binaries for compilation 'test' of target 'iosArm64'.
+iosArm64TestKlibrary - Assembles outputs for compilation 'test' of target 'iosArm64'
+iosSimulatorArm64Binaries - Assembles outputs for target 'iosSimulatorArm64'.
+iosSimulatorArm64MainBinaries - Links all binaries for compilation 'main' of target 'iosSimulatorArm64'.
+iosSimulatorArm64MainKlibrary - Assembles outputs for compilation 'main' of target 'iosSimulatorArm64'
+iosSimulatorArm64MetadataElements - Assembles Kotlin metadata of target 'iosSimulatorArm64'.
+iosSimulatorArm64SourcesJar - Assembles a jar archive containing the sources of target 'iosSimulatorArm64'.
+iosSimulatorArm64TestBinaries - Links all binaries for compilation 'test' of target 'iosSimulatorArm64'.
+iosSimulatorArm64TestKlibrary - Assembles outputs for compilation 'test' of target 'iosSimulatorArm64'
+jsJar - Assembles an archive containing the main classes.
+jsMainClasses - Assembles outputs for compilation 'main' of target 'js'
+jsSourcesJar - Assembles a jar archive containing the sources of target 'js'.
+jsTestClasses - Assembles outputs for compilation 'test' of target 'js'
+jvmDevClasses - Assembles outputs for compilation 'dev' of target 'jvm'
+jvmJar - Assembles an archive containing the main classes.
+jvmMainClasses - Assembles outputs for compilation 'main' of target 'jvm'
+jvmSourcesJar - Assembles a jar archive containing the sources of target 'jvm'.
+jvmTestClasses - Assembles outputs for compilation 'test' of target 'jvm'
+linkDebugFrameworkIosArm64 - Links a framework 'debugFramework' for a target 'iosArm64'.
+linkDebugFrameworkIosSimulatorArm64 - Links a framework 'debugFramework' for a target 'iosSimulatorArm64'.
+linkDebugTestIosArm64 - Links a test executable 'debugTest' for a target 'iosArm64'.
+linkDebugTestIosSimulatorArm64 - Links a test executable 'debugTest' for a target 'iosSimulatorArm64'.
+linkIosArm64 - Links all binaries for target 'iosArm64'.
+linkIosSimulatorArm64 - Links all binaries for target 'iosSimulatorArm64'.
+linkReleaseFrameworkIosArm64 - Links a framework 'releaseFramework' for a target 'iosArm64'.
+linkReleaseFrameworkIosSimulatorArm64 - Links a framework 'releaseFramework' for a target 'iosSimulatorArm64'.
+metadataAppleMainClasses - Assembles outputs for compilation 'appleMain' of target 'metadata'
+metadataCommonMainClasses - Assembles outputs for compilation 'commonMain' of target 'metadata'
+metadataIosMainClasses - Assembles outputs for compilation 'iosMain' of target 'metadata'
+metadataMainClasses - Assembles outputs for compilation 'main' of target 'metadata'
+metadataNativeMainClasses - Assembles outputs for compilation 'nativeMain' of target 'metadata'
+metadataSourcesJar - Assembles a jar archive containing the sources of target 'metadata'.
+metadataWebMainClasses - Assembles outputs for compilation 'webMain' of target 'metadata'
+sourcesJar - Assembles a jar archive containing the sources of target 'kotlin'.
+wasmJsJar - Assembles an archive containing the main classes.
+wasmJsMainClasses - Assembles outputs for compilation 'main' of target 'wasmJs'
+wasmJsSourcesJar - Assembles a jar archive containing the sources of target 'wasmJs'.
+wasmJsTestClasses - Assembles outputs for compilation 'test' of target 'wasmJs'
+Build Setup tasks
+-----------------
+init - Initializes a new Gradle build.
+updateDaemonJvm - Generates or updates the Gradle Daemon JVM criteria.
+wrapper - Generates Gradle wrapper files.
+Compose tasks
+-------------
+composeCompatibilityBrowserDistribution - This task combines both js and wasm distributions into one so that wasm application fallback to js target if modern wasm feature are not supported
+Compose desktop tasks
+---------------------
+checkRuntime
+createDistributable
+createReleaseDistributable
+createRuntimeImage
+flattenJars
+flattenReleaseJars
+notarizeDmg
+notarizeReleaseDmg
+package
+packageDeb
+packageDistributionForCurrentOS
+packageDmg
+packageMsi
+packageReleaseDeb
+packageReleaseDistributionForCurrentOS
+packageReleaseDmg
+packageReleaseMsi
+packageReleaseUberJarForCurrentOS
+packageUberJarForCurrentOS
+prepareAppResources
+proguardReleaseJars
+run
+runDistributable
+runRelease
+runReleaseDistributable
+suggestRuntimeModules
+unpackDefaultComposeDesktopJvmApplicationResources
+Compose Hot Reload: Other tasks
+-------------------------------
+hotDevJvmArgfile - Creates an argument file for the 'hotDevJvm' task
+hotReloadJvmDev - Hot Reloads code associated with the 'compilation 'dev' (target jvm (jvm))'
+hotReloadJvmMain - Hot Reloads code associated with the 'compilation 'main' (target jvm (jvm))'
+hotReloadJvmTest - Hot Reloads code associated with the 'compilation 'test' (target jvm (jvm))'
+hotRunJvmArgfile - Creates an argument file for the 'hotRunJvm' task
+hotSnapshotJvmDev - Takes a snapshot of the classpath of the 'dev' compilation
+hotSnapshotJvmMain - Takes a snapshot of the classpath of the 'main' compilation
+hotSnapshotJvmTest - Takes a snapshot of the classpath of the 'test' compilation
+reload - Hot Reloads code for all running applications
+Compose Hot Reload: Run tasks
+-----------------------------
+hotDevJvm - Compose Application Dev Run (Hot Reload enabled) | --className=... --funName=...
+hotDevJvmAsync - Compose Application Dev Run (Hot Reload enabled) | --className=... --funName=... [Async]
+hotRunJvm - Compose Application Run (Hot Reload enabled) | --mainClass=...
+hotRunJvmAsync - Compose Application Run (Hot Reload enabled) | --mainClass=... [Async]
+jvmRunHot - Deprecated: Use 'hotRunJvm' instead
+Help tasks
+----------
+artifactTransforms - Displays the Artifact Transforms that can be executed in root project 'web_previews'.
+buildEnvironment - Displays all buildscript dependencies declared in root project 'web_previews'.
+dependencies - Displays all dependencies declared in root project 'web_previews'.
+dependencyInsight - Displays the insight into a specific dependency in root project 'web_previews'.
+help - Displays a help message.
+javaToolchains - Displays the detected java toolchains.
+kotlinDslAccessorsReport - Prints the Kotlin code for accessing the currently available project extensions and conventions.
+outgoingVariants - Displays the outgoing variants of root project 'web_previews'.
+projects - Displays the sub-projects of root project 'web_previews'.
+properties - Displays the properties of root project 'web_previews'.
+resolvableConfigurations - Displays the configurations that can be resolved in root project 'web_previews'.
+tasks - Displays the tasks runnable from root project 'web_previews' (some of the displayed tasks may belong to subprojects).
+Ide tasks
+---------
+resolveIdeDependencies - Debugging/Diagnosing task that will resolve dependencies for the IDE
+Install tasks
+-------------
+installDebug - Installs the Debug build.
+installDebugAndroidTest - Installs the android (on device) tests for the Debug build.
+uninstallAll - Uninstall all applications.
+uninstallDebug - Uninstalls the Debug build.
+uninstallDebugAndroidTest - Uninstalls the android (on device) tests for the Debug build.
+uninstallRelease - Uninstalls the Release build.
+Interop tasks
+-------------
+cleanNativeDistributionCommonization - Deletes all previously commonized klib's from the Kotlin/Native distribution
+commonize - Aggregator task for all c-interop & Native distribution commonizer tasks
+commonizeNativeDistribution - Invokes the commonizer on platform libraries provided by the Kotlin/Native distribution
+runCommonizer - [Deprecated: Use 'commonize' instead]
+Kotlin browser tasks
+--------------------
+jsBrowserDevelopmentExecutableDistribution
+jsBrowserDevelopmentRun - start development webpack dev server
+jsBrowserDevelopmentWebpack - build webpack development bundle
+jsBrowserDistribution
+jsBrowserProductionRun - start production webpack dev server
+jsBrowserProductionWebpack - build webpack production bundle
+wasmJsBrowserDevelopmentExecutableDistribution
+wasmJsBrowserDevelopmentRun - start development webpack dev server
+wasmJsBrowserDevelopmentWebpack - build webpack development bundle
+wasmJsBrowserDistribution
+wasmJsBrowserProductionRun - start production webpack dev server
+wasmJsBrowserProductionWebpack - build webpack production bundle
+NodeJs tasks
+------------
+jsPackageJson - Create package.json file for compilation 'main' (target js (js))
+jsTestPackageJson - Create package.json file for compilation 'test' (target js (js))
+kotlinNodeJsSetup - Download and install a local node/npm version
+kotlinNpmInstall - Find, download and link NPM dependencies and projects
+kotlinWasmNodeJsSetup - Download and install a local node/npm version
+kotlinWasmNpmInstall - Find, download and link NPM dependencies and projects
+kotlinWasmToolingSetup - Find, download and link NPM dependencies and projects
+kotlinWasmYarnSetup - Download and install a local yarn version
+kotlinYarnSetup - Download and install a local yarn version
+nodeKotlinClean - Clean unused local node version
+rootPackageJson - Create root package.json
+wasmJsPackageJson - Create package.json file for compilation 'main' (target wasmJs (wasm))
+wasmJsTestPackageJson - Create package.json file for compilation 'test' (target wasmJs (wasm))
+wasmNodeKotlinClean - Clean unused local node version
+wasmRootPackageJson - Create root package.json
+Run tasks
+---------
+jvmRun - Jvm Run task for target 'jvm' and compilation 'main'. This task can act as carrier for the IDE to execute jvm based code
+Verification tasks
+------------------
+allTests - Runs the tests for all targets and create aggregated report
+check - Runs all checks.
+checkJetifier - Checks whether Jetifier is needed for the current project
+checkKotlinGradlePluginConfigurationErrors - Checks that Kotlin Gradle Plugin hasn't reported project configuration errors, failing otherwise. This task always runs before compileKotlin* or similar tasks.
+checkLegacyAbi - Checks that the public Application Binary Interface (ABI) of the current project code matchesthe reference dump file for the 'main' variant.
+connectedAndroidTest - Installs and runs instrumentation tests for all flavors on connected devices.
+connectedCheck - Runs all device checks on currently connected devices.
+connectedDebugAndroidTest - Installs and runs the tests for debug on connected devices.
+deviceAndroidTest - Installs and runs instrumentation tests using all Device Providers.
+deviceCheck - Runs all device checks using Device Providers and Test Servers.
+iosSimulatorArm64Test - Executes Kotlin/Native unit tests for target iosSimulatorArm64.
+jsBrowserTest - Run all js tests inside browser using karma and webpack
+jsTest - Run JS tests for all platforms
+jvmTest - Runs the tests of the test test run.
+lint - Runs lint on the default variant.
+lintDebug - Print text output from the corresponding lint report task
+lintFix - Runs lint on the default variant and applies any safe suggestions to the source code.
+lintRelease - Print text output from the corresponding lint report task
+lintVitalRelease - Print text output from the corresponding lint report task
+test - Run unit tests for all variants.
+testDebugUnitTest - Run unit tests for the debug build.
+testReleaseUnitTest - Run unit tests for the release build.
+updateLegacyAbi - Writes the public Application Binary Interface (ABI) of the current code to the reference dump file for the 'main' variant.
+updateLintBaseline - Updates the lint baseline using the default variant.
+wasmJsBrowserTest - Run all wasmJs tests inside browser using karma and webpack
+wasmJsTest - Run JS tests for all platforms
+Xcode tasks
+-----------
+checkXcodeProjectConfiguration - Checks for configuration mismatches between Xcode and Kotlin Gradle project
+convertPbxprojToJson - Converts .pbxproj file to JSON for inspection
+Rules
+-----
+Pattern: clean<TaskName>: Cleans the output files of a task.
+Pattern: build<ConfigurationName>: Assembles the artifacts of a configuration.
+To see all tasks and more detail, run gradlew tasks --all
+To see more detail about a task, run gradlew help --task <task>
+[Incubating] Problems report is available at: file:///Users/emil/AndroidStudioProjects/web-previews/build/reports/problems/problems-report.html
+BUILD SUCCESSFUL in 585ms
+1 actionable task: 1 executed
+Configuration cache entry stored.
