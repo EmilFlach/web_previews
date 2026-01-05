@@ -1,25 +1,25 @@
 package com.emilflach.web_previews.server
 
+import com.google.zxing.BarcodeFormat
+import com.google.zxing.qrcode.QRCodeWriter
+import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
+import io.ktor.server.http.content.*
 import io.ktor.server.netty.*
+import io.ktor.server.plugins.compression.*
 import io.ktor.server.routing.*
 import io.ktor.server.websocket.*
 import io.ktor.websocket.*
-import io.ktor.server.plugins.compression.*
-import io.ktor.server.http.content.*
-import io.ktor.server.response.*
-import io.ktor.http.*
-import io.ktor.server.request.*
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import java.io.File
 import java.net.NetworkInterface
 import java.nio.file.*
 import java.util.concurrent.atomic.AtomicBoolean
-import com.google.zxing.BarcodeFormat
-import com.google.zxing.qrcode.QRCodeWriter
-import com.google.zxing.common.BitMatrix
 
 fun main() {
     val port = 8080
@@ -87,7 +87,7 @@ fun main() {
         
         launch {
             for (change in changeChannel) {
-                delay(1000) // Debounce
+                delay(500) // Debounce
                 // Consume all pending signals that might have accumulated during delay
                 while (changeChannel.tryReceive().isSuccess) { /* keep skipping */ }
                 
