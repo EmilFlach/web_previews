@@ -45,7 +45,7 @@ fun App() {
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Image(painterResource(Res.drawable.compose_multiplatform), null)
-                    Text("Compose test: $greeting")
+                    Text("Compose: $greeting")
                 }
             }
 
@@ -58,7 +58,10 @@ fun App() {
                 items(items.count()) { index ->
                     Text(
                         text = items[index],
-                        modifier = Modifier.padding(8.dp).fillMaxWidth(),
+                        modifier = Modifier
+                            .padding(8.dp)
+                            .fillMaxWidth()
+                            .background(if (index % 2 == 0) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.errorContainer),
                         textAlign = TextAlign.Center
                     )
                 }

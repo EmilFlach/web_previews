@@ -22,12 +22,17 @@ import java.nio.file.*
 import java.util.concurrent.atomic.AtomicBoolean
 
 fun main() {
+    // Clear the terminal screen to remove Gradle startup noise (if supported by terminal)
+    // \u001b[H moves cursor to home, \u001b[2J clears the screen
+    print("\u001b[H\u001b[2J")
+    System.out.flush()
+
     val port = 8080
     val localIp = getLocalIpAddress()
     val localUrl = "http://localhost:$port"
     val networkUrl = localIp?.let { "http://$it:$port" }
 
-    println("\n" + "=".repeat(50))
+    println("=".repeat(50))
     println("Server started!")
     println("Local:   $localUrl")
     networkUrl?.let {
@@ -35,7 +40,7 @@ fun main() {
         println("\nScan the QR code below for network access:")
         println(generateQrCodeAscii(it))
     }
-    println("=".repeat(50) + "\n")
+    println("=".repeat(50))
 
     embeddedServer(Netty, port = port) {
         install(WebSockets)
@@ -92,8 +97,16 @@ fun main() {
                 while (changeChannel.tryReceive().isSuccess) { /* keep skipping */ }
                 
                 if (buildInProgress.compareAndSet(false, true)) {
-                    print("\rFile change detected, rebuilding...")
-                    System.out.flush()
+                    val startTime = System.currentTimeMillis()
+                    val timerJob = launch {
+                        while (true) {
+                            val elapsed = (System.currentTimeMillis() - startTime) / 1000.0
+                            print("\r\u001B[33mFile change detected, rebuilding... (${"%.1f".format(elapsed)}s)\u001B[0m          ")
+                            System.out.flush()
+                            delay(100)
+                        }
+                    }
+
                     clients.forEach { 
                         launch {
                             try { it.send("rebuilding") } catch (e: Exception) {}
@@ -101,16 +114,28 @@ fun main() {
                     }
                     
                     val gradlewPath = if (File("./gradlew").exists()) "./gradlew" else "../gradlew"
-                    val process = ProcessBuilder(gradlewPath, ":composeApp:wasmJsBrowserDevelopmentExecutableDistribution", "--console=plain")
+                    val processBuilder = ProcessBuilder(
+                        gradlewPath,
+                        ":composeApp:wasmJsBrowserDevelopmentExecutableDistribution",
+                        "--quiet",
+                        "--console=rich",
+                        "-Dorg.gradle.color=true",
+                        "-Pkotlin.colors.enabled=true"
+                    )
+                    processBuilder.environment()["TERM"] = "xterm-256color"
+                    
+                    val process = processBuilder
                         .redirectErrorStream(true)
                         .start()
                     
                     val output = process.inputStream.bufferedReader().use { it.readText() }
                     val exitCode = process.waitFor()
+                    timerJob.cancel()
+                    val duration = (System.currentTimeMillis() - startTime) / 1000.0
                     buildInProgress.set(false)
                     
                     if (exitCode == 0) {
-                        print("\rRebuild successful, notifying clients.          ")
+                        print("\r\u001B[32mRebuild successful in ${"%.1f".format(duration)}s, notifying clients.\u001B[0m          ")
                         System.out.flush()
                         val filesList = distDir.listFiles()?.filter { 
                             it.name.endsWith(".js") || it.name.endsWith(".wasm") || it.name == "app.html"
@@ -122,10 +147,23 @@ fun main() {
                             }
                         }
                     } else {
-                        println("\rRebuild failed with exit code $exitCode          ")
-                        println("\n--- Gradle Output ---")
-                        println(output)
-                        println("----------------------\n")
+                        println("\r\u001B[31mRebuild failed in ${"%.1f".format(duration)}s\u001B[0m" + " ".repeat(20))
+                        val filteredOutput = output.lines()
+                            .filter { line -> 
+                                line.isNotBlank() && 
+                                !line.contains("> Task :") && 
+                                !line.contains("BUILD FAILED") &&
+                                !line.contains("Run with --stacktrace") &&
+                                !line.contains("Run with --info") &&
+                                !line.contains("Run with --debug") &&
+                                !line.contains("Run with --scan") &&
+                                !line.contains("Get more help at https://help.gradle.org")
+                            }
+                            .joinToString("\n")
+                        
+                        if (filteredOutput.isNotBlank()) {
+                            println("\n$filteredOutput\n")
+                        }
                         clients.forEach { 
                             launch {
                                 try { it.send("error") } catch (e: Exception) {}

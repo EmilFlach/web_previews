@@ -33,3 +33,8 @@ tasks.withType<JavaExec> {
         logging.captureStandardOutput(LogLevel.INFO)
     }
 }
+
+tasks.named<JavaExec>("run") {
+    // Attempt to reduce noise when running the server
+    logging.captureStandardOutput(LogLevel.INFO)
+}
