@@ -36,6 +36,9 @@ kotlin {
 
     @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
+        compilerOptions {
+            outputModuleName.set("composeApp")
+        }
         browser()
         binaries.executable()
     }
@@ -45,6 +48,8 @@ kotlin {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
         }
+        val wasmJsMain by getting
+        val wasmJsTest by getting
         commonMain.dependencies {
             implementation(compose.runtime)
             implementation(compose.foundation)
