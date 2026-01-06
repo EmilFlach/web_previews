@@ -69,6 +69,17 @@ in your IDE's toolbar or run it directly from the terminal:
 To build and run the development version of the iOS app, use the run configuration from the run widget
 in your IDE’s toolbar or open the [/iosApp](./iosApp) directory in Xcode and run it from there.
 
+### GitHub Pages Preview
+
+This project is configured to automatically deploy a web preview to GitHub Pages on every push to the `main` branch.
+
+To enable this:
+1. Push your changes to GitHub.
+2. Go to your repository settings on GitHub.
+3. Navigate to **Settings > Pages**.
+4. Under **Build and deployment > Branch**, ensure it is set to `gh-pages` and the folder is `/ (root)`.
+5. Your preview will be available at `https://<your-username>.github.io/<your-repo-name>/`.
+
 ---
 
 Learn more about [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html),
