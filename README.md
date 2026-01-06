@@ -71,14 +71,17 @@ in your IDE’s toolbar or open the [/iosApp](./iosApp) directory in Xcode and r
 
 ### GitHub Pages Preview
 
-This project is configured to automatically deploy a web preview to GitHub Pages on every push to the `main` branch.
+This project is configured to automatically deploy a web preview to GitHub Pages:
+- **Main branch:** Deploys on every push to `main`.
+- **Pull Requests:** Deploys a unique preview for every PR and posts a link in the PR comments.
 
 To enable this:
 1. Push your changes to GitHub.
 2. Go to your repository settings on GitHub.
 3. Navigate to **Settings > Pages**.
 4. Under **Build and deployment > Branch**, ensure it is set to `gh-pages` and the folder is `/ (root)`.
-5. Your preview will be available at `https://<your-username>.github.io/<your-repo-name>/`.
+5. Your main preview will be available at `https://<your-username>.github.io/<your-repo-name>/`.
+6. For Pull Requests, look for a comment from "github-actions" with the preview link.
 
 ---
 

@@ -3,10 +3,12 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches:
-      - main  # Change this if your default branch is different
+      - main
+  pull_request:
 
 permissions:
   contents: write
+  pull-requests: write
 
 jobs:
   build-and-deploy:
@@ -33,8 +35,27 @@ jobs:
           # For GitHub Pages, we want app.html to be the entry point (index.html).
           cp composeApp/build/dist/wasmJs/productionExecutable/app.html composeApp/build/dist/wasmJs/productionExecutable/index.html
 
+      - name: Set deployment folder
+        id: set-folder
+        run: |
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            echo "folder=previews/pr-${{ github.event.number }}" >> $GITHUB_OUTPUT
+          else
+            echo "folder=." >> $GITHUB_OUTPUT
+          fi
+
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           folder: composeApp/build/dist/wasmJs/productionExecutable
           branch: gh-pages
+          target-folder: ${{ steps.set-folder.outputs.folder }}
+
+      - name: Comment on PR
+        if: github.event_name == 'pull_request'
+        uses: thollander/actions-comment-pull-request@v2
+        with:
+          message: |
+            🚀 Preview ready!
+            Check out the changes here: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/previews/pr-${{ github.event.number }}/
+          comment_tag: preview-link
