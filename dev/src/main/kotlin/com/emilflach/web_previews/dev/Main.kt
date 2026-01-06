@@ -1,0 +1,298 @@
+package com.emilflach.web_previews.dev
+
+import com.google.zxing.BarcodeFormat
+import com.google.zxing.qrcode.QRCodeWriter
+import io.ktor.http.*
+import io.ktor.server.application.*
+import io.ktor.server.engine.*
+import io.ktor.server.http.content.*
+import io.ktor.server.netty.*
+import io.ktor.server.plugins.compression.*
+import io.ktor.server.routing.*
+import io.ktor.server.websocket.*
+import io.ktor.websocket.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import java.io.File
+import java.net.NetworkInterface
+import java.nio.file.*
+import java.util.concurrent.atomic.AtomicBoolean
+
+fun main() {
+    // \u001b[H moves cursor to home, \u001b[2J clears the screen
+    print("\u001b[H\u001b[2J")
+    System.out.flush()
+
+    val port = 8080
+    val maxPortAttempts = 10
+    var server: EmbeddedServer<NettyApplicationEngine, NettyApplicationEngine.Configuration>? = null
+
+    for (attempt in 0 until maxPortAttempts) {
+        try {
+            val currentPort = port + attempt
+            val localIp = getLocalIpAddress()
+            val localUrl = "http://localhost:$currentPort"
+            val networkUrl = localIp?.let { "http://$it:$currentPort" }
+
+            server = embeddedServer(Netty, port = currentPort) {
+                install(WebSockets)
+                install(Compression) {
+                    gzip {
+                        priority = 1.0
+                    }
+                    deflate {
+                        priority = 10.0
+                        minimumSize(1024)
+                    }
+                }
+
+                val buildInProgress = AtomicBoolean(false)
+                val clients = java.util.Collections.synchronizedSet(mutableSetOf<DefaultWebSocketServerSession>())
+
+                val distDir = File("composeApp/build/dist/wasmJs/developmentExecutable").let {
+                    if (it.exists()) it else File("../composeApp/build/dist/wasmJs/developmentExecutable")
+                }.canonicalFile
+
+                if (!distDir.exists()) {
+                    distDir.mkdirs()
+                }
+
+                // Copy resources initially if they exist
+                val initialResourcesDir = File("composeApp/src/webMain/resources")
+                if (initialResourcesDir.exists()) {
+                    initialResourcesDir.listFiles()?.forEach { file ->
+                        file.copyTo(File(distDir, file.name), overwrite = true)
+                    }
+                }
+                routing {
+                    webSocket("/dev-server") {
+                        clients.add(this)
+                        try {
+                            if (buildInProgress.get()) {
+                                send("rebuilding")
+                            }
+                            for (frame in incoming) {
+                                // Keep alive
+                            }
+                        } finally {
+                            clients.remove(this)
+                        }
+                    }
+
+                    staticFiles("/", distDir) {
+                        enableAutoHeadResponse()
+                        default("index.html")
+                        // Add headers to encourage browser to use the background-fetched files
+                        cacheControl {
+                            // Use a short max-age for the transition
+                            listOf(CacheControl.MaxAge(maxAgeSeconds = 10))
+                        }
+                    }
+                }
+
+                launch(Dispatchers.IO) {
+                    val changeChannel = Channel<Unit>(Channel.CONFLATED)
+
+                    launch {
+                        for (change in changeChannel) {
+                            delay(500) // Debounce
+                            // Consume all pending signals that might have accumulated during delay
+                            while (changeChannel.tryReceive().isSuccess) { /* keep skipping */ }
+
+                            if (buildInProgress.compareAndSet(false, true)) {
+                                val startTime = System.currentTimeMillis()
+                                val timerJob = launch {
+                                    while (true) {
+                                        val elapsed = (System.currentTimeMillis() - startTime) / 1000.0
+                                        print("\r\u001B[33mFile change detected, rebuilding... (${"%.1f".format(elapsed)}s)\u001B[0m          ")
+                                        System.out.flush()
+                                        delay(100)
+                                    }
+                                }
+
+                                clients.forEach {
+                                    launch {
+                                        try { it.send("rebuilding") } catch (_: Exception) {}
+                                    }
+                                }
+
+                                val gradlewPath = if (File("./gradlew").exists()) "./gradlew" else "../gradlew"
+                                val processBuilder = ProcessBuilder(
+                                    gradlewPath,
+                                    ":composeApp:wasmJsBrowserDevelopmentExecutableDistribution",
+                                    "--quiet",
+                                    "--console=rich",
+                                    "-Dorg.gradle.color=true",
+                                    "-Pkotlin.colors.enabled=true"
+                                )
+                                processBuilder.environment()["TERM"] = "xterm-256color"
+
+                                val process = processBuilder
+                                    .redirectErrorStream(true)
+                                    .start()
+
+                                val output = process.inputStream.bufferedReader().use { it.readText() }
+                                val exitCode = process.waitFor()
+                                timerJob.cancel()
+                                val duration = (System.currentTimeMillis() - startTime) / 1000.0
+                                buildInProgress.set(false)
+
+                                if (exitCode == 0) {
+                                    print("\r\u001B[32mRebuild successful in ${"%.1f".format(duration)}s, notifying clients.\u001B[0m          ")
+                                    System.out.flush()
+
+                                    val resourcesDir = File("composeApp/src/webMain/resources")
+                                    if (resourcesDir.exists()) {
+                                        resourcesDir.listFiles()?.forEach { file ->
+                                            file.copyTo(File(distDir, file.name), overwrite = true)
+                                        }
+                                    }
+                                    val filesList = distDir.listFiles()?.filter {
+                                        it.name.endsWith(".js") || it.name.endsWith(".wasm") || it.name == "app.html"
+                                    }?.joinToString(",") { it.name } ?: ""
+
+                                    clients.forEach {
+                                        launch {
+                                            try { it.send("reload:$filesList") } catch (_: Exception) {}
+                                        }
+                                    }
+                                } else {
+                                    println("\r\u001B[31mRebuild failed in ${"%.1f".format(duration)}s\u001B[0m" + " ".repeat(20))
+                                    val filteredOutput = output.lines()
+                                        .filter { line ->
+                                            line.isNotBlank() &&
+                                                    !line.contains("> Task :") &&
+                                                    !line.contains("BUILD FAILED") &&
+                                                    !line.contains("Run with --stacktrace") &&
+                                                    !line.contains("Run with --info") &&
+                                                    !line.contains("Run with --debug") &&
+                                                    !line.contains("Run with --scan") &&
+                                                    !line.contains("Get more help at https://help.gradle.org")
+                                        }
+                                        .joinToString("\n")
+
+                                    if (filteredOutput.isNotBlank()) {
+                                        println("\n$filteredOutput\n")
+                                    }
+                                    clients.forEach {
+                                        launch {
+                                            try { it.send("error") } catch (_: Exception) {}
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    watchFiles {
+                        changeChannel.send(Unit)
+                    }
+
+                    // Trigger an initial build immediately after starting
+                    changeChannel.send(Unit)
+                }
+            }.start(wait = false)
+
+            println("=".repeat(50))
+            println("Server started!")
+            networkUrl?.let {
+                println("\nScan the QR code below to view on your phone:")
+                println(generateQrCodeAscii(it))
+                println("Local:   $localUrl")
+                println("Network: $it")
+            }
+            println("=".repeat(50))
+
+            break
+        } catch (e: java.net.BindException) {
+            if (attempt == maxPortAttempts - 1) {
+                println("Failed to bind to any port after $maxPortAttempts attempts.")
+                throw e
+            }
+            println("Port ${port + attempt} is already in use, trying next port...")
+        }
+    }
+
+    server?.let {
+        while (true) {
+            Thread.sleep(Long.MAX_VALUE)
+        }
+    }
+}
+
+fun watchFiles(onChange: suspend () -> Unit) {
+    val watchService = FileSystems.getDefault().newWatchService()
+    val root = Paths.get(".").let {
+        if (Files.exists(it.resolve("composeApp"))) it else Paths.get("..")
+    }.toAbsolutePath().normalize()
+
+    fun registerRecursive(path: Path) {
+        val file = path.toFile()
+        if (file.isDirectory) {
+            val name = file.name
+            if (name == "build" || name.startsWith(".") || name == "node_modules" || name == "kotlin-js-store") return
+
+            path.register(
+                watchService,
+                StandardWatchEventKinds.ENTRY_CREATE,
+                StandardWatchEventKinds.ENTRY_DELETE,
+                StandardWatchEventKinds.ENTRY_MODIFY
+            )
+            file.listFiles()?.forEach { registerRecursive(it.toPath()) }
+        }
+    }
+
+    registerRecursive(root)
+
+    runBlocking {
+        while (true) {
+            val key = watchService.take()
+            var changed = false
+            for (event in key.pollEvents()) {
+                val context = event.context() as? Path ?: continue
+                val watchable = key.watchable() as Path
+                val resolvedPath = watchable.resolve(context).toAbsolutePath().normalize()
+
+                val pathString = resolvedPath.toString()
+                if (pathString.contains("composeApp/src") || pathString.endsWith(".gradle.kts")) {
+                    changed = true
+                }
+
+                if (event.kind() == StandardWatchEventKinds.ENTRY_CREATE) {
+                    registerRecursive(resolvedPath)
+                }
+            }
+            if (changed) {
+                onChange()
+            }
+            if (!key.reset()) break
+        }
+    }
+}
+
+fun getLocalIpAddress(): String? {
+    return NetworkInterface.getNetworkInterfaces().asSequence()
+        .flatMap { it.inetAddresses.asSequence() }
+        .filter { !it.isLoopbackAddress && it.hostAddress.indexOf(':') < 0 }
+        .map { it.hostAddress }
+        .firstOrNull()
+}
+
+fun generateQrCodeAscii(text: String): String {
+    val qrCodeWriter = QRCodeWriter()
+    val bitMatrix = qrCodeWriter.encode(text, BarcodeFormat.QR_CODE, 0, 0)
+    val width = bitMatrix.width
+    val height = bitMatrix.height
+    val sb = StringBuilder()
+    for (y in 0 until height) {
+        for (x in 0 until width) {
+            sb.append(if (bitMatrix.get(x, y)) "██" else "  ")
+        }
+        sb.append("\n")
+    }
+    return sb.toString()
+}
+
