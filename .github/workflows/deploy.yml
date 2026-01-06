@@ -26,6 +26,15 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
 
+      - name: Comment PR (Preparing)
+        if: github.event_name == 'pull_request'
+        uses: thollander/actions-comment-pull-request@v2
+        with:
+          message: |
+            ⏳ Preview is being prepared...
+            This usually takes 10-15 minutes. Once ready, this comment will be updated with the link.
+          comment_tag: preview-link
+
       - name: Build with Gradle
         run: ./gradlew :composeApp:wasmJsBrowserDistribution
 
@@ -56,6 +65,7 @@ jobs:
         uses: thollander/actions-comment-pull-request@v2
         with:
           message: |
-            🚀 Preview ready!
+            ✅ Preview ready!
             Check out the changes here: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/previews/pr-${{ github.event.number }}/
           comment_tag: preview-link
+          mode: recreate
