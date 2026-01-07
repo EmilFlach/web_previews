@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Preview - {{PR_TITLE}}</title>
+    <title>Web Preview</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         :root {
@@ -72,7 +72,7 @@
             letter-spacing: -0.5px;
         }
 
-        .pr-tag {
+        .dev-tag {
             display: inline-block;
             background: rgba(53, 116, 240, 0.2);
             color: var(--accent-color);
@@ -98,29 +98,6 @@
             white-space: pre-wrap;
         }
 
-        .meta-info {
-            font-size: 13px;
-            color: var(--text-secondary);
-            margin-bottom: 8px;
-        }
-
-        .meta-info strong, .meta-info code {
-            color: var(--text-primary);
-        }
-
-        .github-link {
-            display: inline-flex;
-            align-items: center;
-            color: var(--accent-color);
-            text-decoration: none;
-            font-weight: 500;
-            margin-top: 16px;
-            font-size: 14px;
-        }
-
-        .github-link:hover {
-            text-decoration: underline;
-        }
 
         #main-content {
             flex-grow: 1;
@@ -305,6 +282,8 @@
             font-size: 12px;
             color: var(--text-secondary);
             margin: 0;
+            overflow-wrap: break-word;
+            word-break: break-all;
         }
 
         /* Mobile View - Hide everything but the app */
@@ -351,19 +330,13 @@
                         </svg>
                     </a>
                 </div>
-                <div id="pr-info" class="hidden">
-                    <div class="pr-tag">Pull Request #{{PR_NUMBER}}</div>
-                    <h1>{{PR_TITLE}}</h1>
-                    <div class="meta-info">By <strong>{{PR_AUTHOR}}</strong> from <code>{{PR_BRANCH}}</code></div>
-                    <div class="description">{{PR_DESCRIPTION}}</div>
-                    <div class="description" style="font-size: 13px; margin-top: -8px; border-left: 2px solid var(--accent-color); padding-left: 12px; white-space: normal;">
-                        <strong>Note:</strong> This is a web preview with limitations (e.g., no device features like Bluetooth). For faster reloads, native performance and all device features, <a href="https://kotlinlang.org/docs/multiplatform/quickstart.html" target="_blank" style="color: var(--accent-color); text-decoration: none;">setup your environment</a> and open this project in Android Studio.
-                    </div>
-                    <a href="{{PR_URL}}" class="github-link" target="_blank">
-                        View on GitHub →
-                    </a>
+                <div class="dev-tag">Web Preview</div>
+                <h1>Web Previews</h1>
+                <div class="description">You are currently previewing your application.</div>
+                <div class="description" style="font-size: 13px; margin-top: -8px; border-left: 2px solid var(--accent-color); padding-left: 12px; white-space: normal;">
+                    <strong>Note:</strong> This is a web preview with limitations (e.g., no device features like Bluetooth). For faster reloads, native performance and all device features, <a href="https://kotlinlang.org/docs/multiplatform/quickstart.html" target="_blank" style="color: var(--accent-color); text-decoration: none;">setup your environment</a> and open this project in Android Studio.
                 </div>
-                <div class="qr-section">
+                <div class="qr-section" id="qr-section">
                     <h3>Mobile Preview</h3>
                     <div id="qr-code"></div>
                     <p id="qr-url"></p>
@@ -492,24 +465,24 @@
         }
 
         // Generate QR Code
+        const qrSection = document.getElementById('qr-section');
         const qrUrlDisplay = document.getElementById('qr-url');
         const currentUrl = window.location.href;
-        qrUrlDisplay.innerText = currentUrl;
-        
-        new QRCode(document.getElementById("qr-code"), {
-            text: currentUrl,
-            width: 160,
-            height: 160,
-            colorDark : "#000000",
-            colorLight : "#ffffff",
-            correctLevel : QRCode.CorrectLevel.H
-        });
 
-        // Hide PR info if placeholder not replaced or explicitly hidden
-        const prInfo = document.getElementById('pr-info');
-        if (prInfo.classList.contains('hidden') || prInfo.innerHTML.includes('{{PR_TITLE}}')) {
-            prInfo.style.display = 'none';
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            if (qrSection) qrSection.style.display = 'none';
+        } else {
+            qrUrlDisplay.innerText = currentUrl;
+            new QRCode(document.getElementById("qr-code"), {
+                text: currentUrl,
+                width: 160,
+                height: 160,
+                colorDark : "#000000",
+                colorLight : "#ffffff",
+                correctLevel : QRCode.CorrectLevel.H
+            });
         }
+
 
         // Initialize scale
         updateScale();
