@@ -167,7 +167,6 @@ suspend fun performRebuild(
             val processBuilder = ProcessBuilder(
                 gradlewPath,
                 ":composeApp:wasmJsBrowserDevelopmentExecutableDistribution",
-                "--rerun-tasks",
                 "--quiet",
                 "--console=rich",
                 "-Dorg.gradle.color=true",
@@ -198,7 +197,7 @@ suspend fun performRebuild(
                 System.out.flush()
 
                 // Copy resources
-                val resourcesDir = File("composeApp/src/webMain/resources")
+                val resourcesDir = File("composeApp/src/wasmJsMain/resources")
                 if (resourcesDir.exists()) {
                     resourcesDir.listFiles()?.forEach { file ->
                         file.copyTo(File(distDir, file.name), overwrite = true)
